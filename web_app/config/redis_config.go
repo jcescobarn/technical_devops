@@ -14,19 +14,34 @@ type RedisConfig struct {
 	DB       int
 }
 
-func (rc *RedisConfig) Connect() *redis.Client {
+func NewRedisConfig(address, password string, db int) *RedisConfig {
+	return &RedisConfig{
+		Address:  address,
+		Password: password,
+		DB:       db,
+	}
+}
+
+func (rc *RedisConfig) Connect() (*redis.Client, error) {
+
+	address := fmt.Sprintf("%s:%d", rc.Address, 6379)
+	fmt.Printf("Connecting to Redis with:\n")
+	fmt.Printf("Addr: %s\n", address)
+	fmt.Printf("DB: %d\n", rc.DB)
+
 	client := redis.NewClient(&redis.Options{
-		Addr:     rc.Address,
-		Password: rc.Password,
-		DB:       rc.DB,
+		Addr: address,
+		DB:   rc.DB,
 	})
 
 	ctx := context.Background()
 	err := client.Ping(ctx).Err()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		log.Fatalf("Error de conexión")
+		return nil, err
 	}
 
 	fmt.Println("Redis Connection Successful")
-	return client
+	return client, nil
 }

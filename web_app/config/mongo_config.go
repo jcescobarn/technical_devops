@@ -18,11 +18,21 @@ type MongoDBConfig struct {
 	DBPort     string
 }
 
+func NewMongoConfig(dbUser, dbPassword, dbName, dbHost, dbPort string) *MongoDBConfig {
+	return &MongoDBConfig{
+		DBUser:     dbUser,
+		DBPassword: dbPassword,
+		DBName:     dbName,
+		DBHost:     dbHost,
+		DBPort:     dbPort,
+	}
+}
+
 func (mc *MongoDBConfig) Connect() (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s/%s", mc.DBUser, mc.DBPassword, mc.DBHost, mc.DBPort, mc.DBName)
+	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s/%s?authSource=admin", mc.DBUser, mc.DBPassword, mc.DBHost, mc.DBPort, mc.DBName)
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
@@ -35,6 +45,6 @@ func (mc *MongoDBConfig) Connect() (*mongo.Client, error) {
 		return nil, err
 	}
 
-	fmt.Println("MongoDB Connection Succesful")
+	log.Println("MongoDB Connection Succesful")
 	return client, nil
 }

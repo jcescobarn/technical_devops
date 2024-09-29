@@ -16,6 +16,16 @@ type MySQLConfig struct {
 	DBPort     string
 }
 
+func NewMysqlConfig(dbUser, dbPassword, dbName, dbHost, dbPort string) *MySQLConfig {
+	return &MySQLConfig{
+		DBUser:     dbUser,
+		DBPassword: dbPassword,
+		DBName:     dbName,
+		DBHost:     dbHost,
+		DBPort:     dbPort,
+	}
+}
+
 func (mc *MySQLConfig) Connect() (*sql.DB, error) {
 
 	var dsn string = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", mc.DBUser, mc.DBPassword, mc.DBHost, mc.DBPort, mc.DBName)
@@ -24,8 +34,6 @@ func (mc *MySQLConfig) Connect() (*sql.DB, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	defer db.Close()
 
 	if err := db.Ping(); err != nil {
 		log.Fatal(err)
