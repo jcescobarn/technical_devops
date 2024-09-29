@@ -1,16 +1,26 @@
 package repositories
 
 import (
+	"log"
+
 	"database/sql"
 
 	_ "github.com/go-sql-driver/mysql"
+
+	"koronet_web_app/entities"
 )
 
 type UserRepository struct {
 	db *sql.DB
 }
 
-func (ur *UserRepository) Create() {
+func NewUserRepository(db *sql.DB) *UserRepository {
+	return &UserRepository{
+		db: db,
+	}
+}
+
+func (ur *UserRepository) Create(user *entities.User) error {
 	query := "INSERT INTO users (username, name, email, password_hash) VALUES (?, ?, ?, ?)"
 	stmt, err := ur.db.Prepare(query)
 	if err != nil {
@@ -28,7 +38,7 @@ func (ur *UserRepository) Create() {
 	return nil
 }
 
-func (ur *UserRepository) Delete() {
+func (ur *UserRepository) Delete(userID string) error {
 
 	query := "DELETE FROM users WHERE id = ?"
 	stmt, err := ur.db.Prepare(query)
@@ -47,7 +57,7 @@ func (ur *UserRepository) Delete() {
 	return nil
 }
 
-func (ur *UserRepository) Get() {
+func (ur *UserRepository) Get(userID string) (*entities.User, error) {
 	query := "SELECT id, username, name, email, password_hash FROM users WHERE id = ?"
 	row := ur.db.QueryRow(query, userID)
 
@@ -65,8 +75,8 @@ func (ur *UserRepository) Get() {
 	return &user, nil
 }
 
-func (ur *UserRepository) GetAll() {
-	query := "SELECT id, username, name, email, password_hash FROM users"
+func (ur *UserRepository) GetAll() ([]*entities.User, error) {
+	query := "SELECT * FROM users"
 	rows, err := ur.db.Query(query)
 	if err != nil {
 		log.Println("Error executing query:", err)

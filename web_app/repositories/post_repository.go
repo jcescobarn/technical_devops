@@ -1,7 +1,13 @@
 package repositories
 
 import (
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"context"
+	"log"
+	"time"
 )
 
 type Post struct {
@@ -16,7 +22,7 @@ type PostRepository struct {
 }
 
 func NewPostRepository(client *mongo.Client, dbName, collectionName string) *PostRepository {
-	collection := client.Database(dbName).collection(collectionName)
+	collection := client.Database(dbName).Collection(collectionName)
 	return &PostRepository{
 		Client:     client,
 		Collection: collection,
@@ -90,7 +96,7 @@ func (pr *PostRepository) GetAllPost() ([]Post, error) {
 }
 
 func (pr *PostRepository) DeletePost(id string) (*mongo.DeleteResult, error) {
-	context, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	objectID, err := primitive.ObjectIDFromHex(id)

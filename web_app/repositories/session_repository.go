@@ -17,7 +17,7 @@ func NewSessionRepository(client *redis.Client) *SessionRepository {
 	}
 }
 
-func (sr *SessionRepository) Create(SessionID, data string, expiration time.Duration) {
+func (sr *SessionRepository) Create(sessionID, data string, expiration time.Duration) error {
 
 	ctx := context.Background()
 
@@ -42,7 +42,7 @@ func (sr *SessionRepository) Get(sessionID string) (string, error) {
 	return val, nil
 }
 
-func (sr *SessionRepository) Delete() error {
+func (sr *SessionRepository) Delete(sessionID string) error {
 	ctx := context.Background()
 
 	err := sr.Client.Del(ctx, sessionID).Err()
