@@ -4,37 +4,12 @@ import (
 	"errors"
 	"golang.org/x/crypto/bcrypt"
 	"os"
+	"strconv"
+
+	"koronet_web_app/entities"
 )
 
 type Functions struct {
-}
-
-type MongoConnectionInfo struct {
-	DBUser     string
-	DBPassword string
-	DBName     string
-	DBHost     string
-	DBPort     string
-}
-
-type MySQLConnectionInfo struct {
-	DBUser     string
-	DBPassword string
-	DBName     string
-	DBHost     string
-	DBPort     string
-}
-
-type RedisConnectionInfo struct {
-	Address  string
-	Password string
-	DB       int
-}
-
-type DatabaseConnectionInfo struct {
-	mongoInfo *MongoConnectionInfo
-	mysqlInfo *MySQLConnectionInfo
-	redisInfo *RedisConnectionInfo
 }
 
 func NewFunctions() *Functions {
@@ -49,7 +24,7 @@ func (f *Functions) HashPassword(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func (f *Functions) LoadEnvData() (*DatabaseConnectionInfo, error) {
+func (f *Functions) LoadEnvData() (*entities.DatabaseConnectionInfo, error) {
 	MysqlDBUser := os.Getenv("MYSQL_USER")
 	MysqlDBPassword := os.Getenv("MYSQL_PASSWORD")
 	MysqlDBName := os.Getenv("MYSQL_DB_NAME")
@@ -63,17 +38,16 @@ func (f *Functions) LoadEnvData() (*DatabaseConnectionInfo, error) {
 	MongoDBPort := os.Getenv("MONGO_PORT")
 
 	RedisHost := os.Getenv("REDIS_HOST")
-	RedisPassword := os.Getenv("REDIS_PASSWORD") // Corrección de nombre
+	RedisPassword := os.Getenv("REDIS_PASSWORD")
 	RedisDB := os.Getenv("REDIS_DB")
 
-	// Validar que las variables de entorno necesarias están cargadas
 	if MysqlDBUser == "" || MysqlDBPassword == "" || MysqlDBName == "" || MysqlDBHost == "" || MysqlDBPort == "" ||
 		MongoDBUser == "" || MongoDBPassword == "" || MongoDBName == "" || MongoDBHost == "" || MongoDBPort == "" ||
 		RedisHost == "" || RedisPassword == "" || RedisDB == "" {
 		return nil, errors.New("some required environment variables are missing")
 	}
 
-	mysql := &MySQLConnectionInfo{
+	mysql := &entities.MySQLConnectionInfo{
 		DBUser:     MysqlDBUser,
 		DBPassword: MysqlDBPassword,
 		DBName:     MysqlDBName,
@@ -81,7 +55,7 @@ func (f *Functions) LoadEnvData() (*DatabaseConnectionInfo, error) {
 		DBPort:     MysqlDBPort,
 	}
 
-	mongo := &MongoConnectionInfo{
+	mongo := &entities.MongoConnectionInfo{
 		DBUser:     MongoDBUser,
 		DBPassword: MongoDBPassword,
 		DBName:     MongoDBName,
@@ -89,15 +63,20 @@ func (f *Functions) LoadEnvData() (*DatabaseConnectionInfo, error) {
 		DBPort:     MongoDBPort,
 	}
 
-	redis := &RedisConnectionInfo{
-		Address:  RedisHost,
-		Password: RedisPassword,
-		DB:       RedisDB,
+	redisDBToInt, err := strconv.Atoi(RedisDB)
+	if err != nil {
+		return nil, err
 	}
 
-	return &DatabaseConnectionInfo{
-		mongoInfo: mongo,
-		mysqlInfo: mysql,
-		redisInfo: redis,
+	redis := &entities.RedisConnectionInfo{
+		Address:  RedisHost,
+		Password: RedisPassword,
+		DB:       redisDBToInt,
+	}
+
+	return &entities.DatabaseConnectionInfo{
+		MongoInfo: mongo,
+		MysqlInfo: mysql,
+		RedisInfo: redis,
 	}, nil
 }
