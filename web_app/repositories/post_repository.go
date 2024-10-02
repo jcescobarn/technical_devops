@@ -17,17 +17,41 @@ type Post struct {
 }
 
 type PostRepository struct {
-	Client     *mongo.Client
-	Collection *mongo.Collection
+	Client         *mongo.Client
+	DBName         string
+	CollectionName string
+	Collection     *mongo.Collection
 }
 
 func NewPostRepository(client *mongo.Client, dbName, collectionName string) *PostRepository {
 	collection := client.Database(dbName).Collection(collectionName)
 	return &PostRepository{
-		Client:     client,
-		Collection: collection,
+		Client:         client,
+		DBName:         dbName,
+		CollectionName: collectionName,
+		Collection:     collection,
 	}
 
+}
+
+func (pr *PostRepository) EnsureCollectionExists() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	tempPost := Post{Title: "Temp Title", Content: "Temp Content"}
+	_, err := pr.Collection.InsertOne(ctx, tempPost)
+	if err != nil {
+		log.Println("Error ensuring collection exists:", err)
+		return err
+	}
+
+	_, err = pr.Collection.DeleteOne(ctx, bson.M{"title": "Temp Title"})
+	if err != nil {
+		log.Println("Error deleting temporary post:", err)
+		return err
+	}
+
+	return nil
 }
 
 func (pr *PostRepository) CreatePost(post Post) (*mongo.InsertOneResult, error) {

@@ -38,7 +38,12 @@ func main() {
 	}
 
 	var userRepository *repositories.UserRepository = repositories.NewUserRepository(mysqlConnection)
+	userRepository.EnsureDatabaseExists()
 	var postRepository *repositories.PostRepository = repositories.NewPostRepository(mongoConnection, "koronet", "post")
+	err = postRepository.EnsureCollectionExists()
+	if err != nil {
+		log.Fatalf("problem")
+	}
 	var sessionRepository *repositories.SessionRepository = repositories.NewSessionRepository(redisConnection)
 	var userHandler *handlers.UserHandler = handlers.NewUserHandler(userRepository, utilsFunctions)
 	var postHandler *handlers.PostHandler = handlers.NewPostHandler(postRepository)

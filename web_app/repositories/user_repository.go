@@ -20,6 +20,25 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 	}
 }
 
+func (ur *UserRepository) EnsureDatabaseExists() error {
+	query := `
+	CREATE TABLE IF NOT EXISTS users (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		username VARCHAR(50) UNIQUE NOT NULL,
+		name VARCHAR(100) NOT NULL,
+		email VARCHAR(100) UNIQUE NOT NULL,
+		password_hash VARCHAR(255) NOT NULL
+	);`
+
+	_, err := ur.db.Exec(query)
+	if err != nil {
+		log.Println("Error creating users table:", err)
+		return err
+	}
+
+	return nil
+}
+
 func (ur *UserRepository) Create(user *entities.User) error {
 	query := "INSERT INTO users (username, name, email, password_hash) VALUES (?, ?, ?, ?)"
 	stmt, err := ur.db.Prepare(query)
