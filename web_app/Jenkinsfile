@@ -70,7 +70,7 @@ pipeline {
 
                     withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                         echo 'Step 2: Log into Docker Hub'
-                        sh 'echo $DOCKER_HUB_PSW | docker login -u $DOCKER_HUB_USR --password-stdin'
+                        sh 'echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin'
 
                         echo 'Step 3: Analyze the image'
                         def scoutResult = sh(script: "docker scout cves ${DOCKER_IMAGE_NAME}:${env.BUILD_ID} --exit-code --only-severity critical,high", returnStatus: true)
