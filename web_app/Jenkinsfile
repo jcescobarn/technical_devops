@@ -58,8 +58,17 @@ pipeline {
         stage('Run Tests') {
             steps {
                script {
-                    echo 'Step 1: Install Docker Scout'
-                    sh 'curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s -- -b /usr/local/bin'
+
+                    def scoutInstalled = sh(script: "docker scout --help", returnStatus: true) == 0
+                    if (!scoutInstalled){
+                        echo 'Step 1: Install Docker Scout'
+                        sh 'curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s -- -b $HOME/.local/bin'
+
+                        sh 'echo "export PATH=\$HOME/.local/bin:\$PATH" >> $HOME/.bashrc'
+                        sh 'source $HOME/.bashrc'
+                    } else {
+                        echo 'Docker Scout is already installed'
+                    }
 
                     withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                         echo 'Step 2: Log into Docker Hub'
@@ -84,7 +93,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                         def dockerImageName = "${DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
 
-                        echo 'Step 1: Tag the image'
+                        echo 'Step 2: Tag the image'
                         sh 'docker tag ${dockerImageName} ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE_NAME}:${env.BUILD_ID}'
 
                         def pushResult = sh(script: "docker push ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE_NAME}:${env.BUILD_ID}", returnStatus: true)
