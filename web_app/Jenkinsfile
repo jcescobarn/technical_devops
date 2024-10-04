@@ -45,7 +45,7 @@ pipeline {
                 script {
                     dir('web_app'){
                         echo 'Step 1: Build Docker image'
-                        def customImage = docker.build("${DOCKER_IMAGE_NAME}:${env.BUILD_ID}", "-f Dockerfile.deploy-t .")
+                        def customImage = docker.build("${DOCKER_IMAGE_NAME}:${env.BUILD_ID}", "-f Dockerfile.deploy -t .")
 
 
                         echo 'Step 2: Verify image'
