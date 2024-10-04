@@ -1,7 +1,10 @@
 pipeline {
     agent any
 
-    tools { go '1.23' }
+    tools { 
+        go '1.23' 
+        docker 'docker'
+    }
 
     environment {
         DOCKER_CREDENTIALS_ID = 'dockerhub_credentials'
