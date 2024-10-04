@@ -62,8 +62,7 @@ pipeline {
                     def scoutInstalled = sh(script: "command -v docker-scout", returnStatus: true) == 0
                     if (!scoutInstalled){
                         echo 'Step 1: Install Docker Scout'
-                        sh 'curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s -- -b $HOME/.local/bin'
-                         env.PATH = "${HOME}/.local/bin:${env.PATH}"
+                        sh 'curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s -- -b $PWD'
                         sh 'docker --version'
                     } else {
                         echo 'Docker Scout is already installed'
@@ -74,7 +73,7 @@ pipeline {
                         sh "echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin"
 
                         echo 'Step 3: Analyze the image'
-                        def scoutResult = sh(script: "docker scout cves ${DOCKER_IMAGE_NAME}:${env.BUILD_ID} --exit-code --only-severity critical,high", returnStatus: true)
+                        def scoutResult = sh(script: "./docker-scout cves ${DOCKER_IMAGE_NAME}:${env.BUILD_ID} --exit-code --only-severity critical,high", returnStatus: true)
 
                         if (scoutResult != 0) {
                             error "The image has vulnerabilities"
