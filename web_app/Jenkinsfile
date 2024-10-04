@@ -1,45 +1,14 @@
 pipeline {
     agent any
 
+    tools { go '1.23' }
+
     environment {
         DOCKER_CREDENTIALS_ID = 'dockerhub_credentials'
         DOCKER_IMAGE_NAME = 'koronet_web_app'
     }
 
     stages {
-        stage("Configure agent") {
-            steps {
-                script {
-                    def wgetCheck = sh(script: "which wget", returnStatus: true)
-                    if (wgetCheck != 0) {
-                        echo 'wget is not installed, proceeding with installation'
-                        sh '''
-                            apt-get update
-                            apt-get install -y wget
-                        '''
-                        echo 'wget has been installed'
-                    } else {
-                        echo 'wget is already installed'
-                    }
-
-                    def goVersionCheck = sh(script: "go version", returnStatus: true)
-                    if (goVersionCheck != 0) {
-                        echo 'Go is not installed, proceeding with installation'
-                        sh '''
-                            wget https://go.dev/dl/go1.23.linux-amd64.tar.gz
-                            sudo tar -C /usr/local -xzf go1.23.linux-amd64.tar.gz
-                            echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.bashrc
-                            export PATH=$PATH:/usr/local/go/bin
-                            go version
-                        '''
-                        echo 'Go has been installed'
-                    } else {
-                        echo 'Go is already installed'
-                    }
-                }
-            }
-        }
-
         stage('Build App'){
             steps {
                 script {
