@@ -3,7 +3,6 @@ pipeline {
 
     tools { 
         go '1.23' 
-        docker 'docker'
     }
 
     environment {
