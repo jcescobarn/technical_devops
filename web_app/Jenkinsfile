@@ -10,7 +10,7 @@ pipeline {
         stage("Configure agent") {
             steps {
                 script {
-                    def goVersionCheck = sh(script: "go version || true", returnStatus: true)
+                    def goVersionCheck = sh(script: "go version", returnStatus: true)
                     if (goVersionCheck != 0) {
                         echo 'Go is not installed, proceeding with installation'
                         sh '''
