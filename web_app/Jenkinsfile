@@ -92,7 +92,7 @@ pipeline {
                         def dockerImageName = "${DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
 
                         echo 'Step 2: Tag the image'
-                        sh 'docker tag ${dockerImageName} ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE_NAME}:${env.BUILD_ID}'
+                        sh "docker tag ${dockerImageName} ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE_NAME}:${env.BUILD_ID}"
 
                         def pushResult = sh(script: "docker push ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE_NAME}:${env.BUILD_ID}", returnStatus: true)
 
