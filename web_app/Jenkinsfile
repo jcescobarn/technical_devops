@@ -12,13 +12,19 @@ pipeline {
         stage('Build App'){
             steps {
                 script {
-                    echo 'Step 1: Install dependencies'
+
+                    echo 'Step 1: List and set directory'
+                    sh '''
+                        ls
+                        cd web_app
+                    ''' 
+                    echo 'Step 2: Install dependencies'
                     sh "go mod tidy"
 
-                    echo 'Step 2: Build Go app'
+                    echo 'Step 3: Build Go app'
                     sh 'go build -o app .'
 
-                    echo 'Step 3: List to confirm'
+                    echo 'Step 4: List to confirm'
                     sh "ls -la app"
                 }
             }
