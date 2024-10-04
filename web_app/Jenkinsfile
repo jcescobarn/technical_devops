@@ -59,7 +59,7 @@ pipeline {
             steps {
                script {
 
-                    def scoutInstalled = sh(script: "docker scout --help", returnStatus: true) == 0
+                    def scoutInstalled = sh(script: "command -v docker-scout", returnStatus: true) == 0
                     if (!scoutInstalled){
                         echo 'Step 1: Install Docker Scout'
                         sh 'curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s -- -b $HOME/.local/bin'
