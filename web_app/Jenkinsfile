@@ -13,19 +13,19 @@ pipeline {
             steps {
                 script {
 
-                    echo 'Step 1: List and set directory'
-                    sh '''
-                        ls
-                        cd web_app
-                    ''' 
-                    echo 'Step 2: Install dependencies'
-                    sh "go mod tidy"
+                    dir('web_app'){
+                        echo 'Step 1: List files'
+                        sh 'ls' 
 
-                    echo 'Step 3: Build Go app'
-                    sh 'go build -o app .'
+                        echo 'Step 2: Install dependencies'
+                        sh "go mod tidy"
 
-                    echo 'Step 4: List to confirm'
-                    sh "ls -la app"
+                        echo 'Step 3: Build Go app'
+                        sh 'go build -o app .'
+
+                        echo 'Step 4: List to confirm'
+                        sh "ls -la app"
+                    }
                 }
             }
         }
@@ -33,11 +33,13 @@ pipeline {
         stage('Build Docker Image'){
             steps{
                 script {
-                    echo 'Step 1: Build Docker image'
-                    sh 'docker build -f Dockerfile.deploy-t ${DOCKER_IMAGE_NAME}:${env.BUILD_ID} .'
+                    dir('web_app'){
+                        echo 'Step 1: Build Docker image'
+                        sh 'docker build -f Dockerfile.deploy-t ${DOCKER_IMAGE_NAME}:${env.BUILD_ID} .'
 
-                    echo 'Step 2: Verify image'
-                    sh 'docker images'
+                        echo 'Step 2: Verify image'
+                        sh 'docker images'
+                    }
                 }
             }
         }
