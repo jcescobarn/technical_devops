@@ -14,8 +14,8 @@ pipeline {
                     if (wgetCheck != 0) {
                         echo 'wget is not installed, proceeding with installation'
                         sh '''
-                            sudo apt-get update
-                            sudo apt-get install -y wget
+                            apt-get update
+                            apt-get install -y wget
                         '''
                         echo 'wget has been installed'
                     } else {
