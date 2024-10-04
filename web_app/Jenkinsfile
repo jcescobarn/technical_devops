@@ -12,7 +12,6 @@ pipeline {
         stage('Build App'){
             steps {
                 script {
-
                     dir('web_app'){
                         echo 'Step 1: List files'
                         sh 'ls' 
@@ -35,7 +34,7 @@ pipeline {
                 script {
                     dir('web_app'){
                         echo 'Step 1: Build Docker image'
-                        sh 'docker build -f Dockerfile.deploy-t ${DOCKER_IMAGE_NAME}:${env.BUILD_ID} .'
+                        sh "docker build -f Dockerfile.deploy-t ${DOCKER_IMAGE_NAME}:${env.BUILD_ID} ."
 
                         echo 'Step 2: Verify image'
                         sh 'docker images'
