@@ -59,7 +59,7 @@ pipeline {
             steps {
                script {
                     echo 'Step 1: Check image with Docker Scout'
-                    def scoutResult = sh(script: 'docker scout cves ${DOCKER_IMAGE_NAME}:${env.BUILD_ID}', returnStatus: true)
+                    def scoutResult = sh(script: "docker scout cves ${DOCKER_IMAGE_NAME}:${env.BUILD_ID}", returnStatus: true)
 
                     if (scoutResult != 0){
                         error "The image has vulnerabilities"
