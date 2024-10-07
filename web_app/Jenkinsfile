@@ -8,6 +8,10 @@ pipeline {
     environment {
         DOCKER_CREDENTIALS_ID = 'dockerhub_credentials'
         DOCKER_IMAGE_NAME = 'koronet_web_app'
+        AWS_CREDENTIALS_ID = 'aws_credentials'
+        EKS_CLUSTER_NAME = 'koronet_interview'
+        AWS_REGION = 'us-east-1'
+        EKS_DEPLOYMENT_NAME = 'deployment.yml'
     }
 
     stages {
@@ -16,6 +20,19 @@ pipeline {
                 script {
                     def dockerHome = tool 'docker'
                     env.PATH = "${dockerHome}/bin:${env.PATH}"
+
+                    def awsCliInstalled = sh(script: 'command -v aws', returnStatus: true) == 0
+                    if (!awsCliInstalled) {
+                        echo 'AWS CLI not installed'
+                        sh '''
+                        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                        unzip awscliv2.zip
+                        sudo ./aws/install
+                        aws --version
+                        '''
+                    } else {
+                        echo 'AWS CLI installed'
+                    }
                 }
             }
         }
@@ -103,6 +120,47 @@ pipeline {
                         }
                     }
                 }
+            }
+        }
+        stage('Configure AWS EKS Context'){
+            withCredentials([usernamePassword(credentialsId:${AWS_CREDENTIALS_ID}, usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                echo 'Step 1: Configure AWS CLI'
+                sh ''' 
+                    aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID 
+                    aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                    aws configure set region ${AWS_REGION}
+                '''
+
+                echo 'Step 2: Update kubeconfig for EKS cluster'
+                sh "aws eks update-config --name ${EKS_CLUSTER_NAME} --region ${AWS_REGION}"
+            }
+        }
+
+        stage('Configure AWS EKS Context') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: "${AWS_CREDENTIALS_ID}", usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]){
+                        sh """
+                            aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                            aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                            aws_configure set region ${AWS_REGION}
+                        """
+
+                        echo 'Step 2: Update kubeconfig for EKS cluster'
+                        sh "aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region ${AWS_REGION}"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to EKS') {
+            steps {
+                echo 'Step 1: Deploy to EKS'
+                sh """
+                    kubectl set image deployment/${EKS_DEPLOYMENT_NAME} ${DOCKER_IMAGE_NAME}=${DOCKERHUB_USERNAME}/${DOCKER_IMAGE_NAME}:${env.BUILD_ID}
+                    kubectl rollout status deployment/${EKS_DEPLOYMENT_NAME}
+
+                """
             }
         }
 

@@ -24,7 +24,7 @@ To monitor the web server and Redis services, a diagram has been created to illu
 ![Monitoring Diagram](assets/monitoring_high_level_diagram.png)
 
 ### Monitoring Tools
-- **Prometheus**: Collects metrics from the web server, Redis MySQL and MongoDB.
+- **Prometheus**: Collects metrics from  Redis, MySQL and MongoDB.
 - **Grafana**: Visualizes metrics from Prometheus.
 
 ## Terraform
