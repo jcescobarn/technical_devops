@@ -27,7 +27,9 @@ services:
       - redis  
       - mongo  
     networks:
-      - koronet-network
+      - mysql-network
+      - redis-network
+      - mongo-network
 
   mysql:
     image: mysql:8.0
@@ -37,7 +39,7 @@ services:
     ports:
       - "3306:3306"
     networks:
-      - koronet-network
+      - mysql-network
 
   redis:
     image: redis:latest  
@@ -46,7 +48,7 @@ services:
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}  
     networks:
-      - koronet-network
+      - redis-network
 
   mongo:
     image: mongo  
@@ -57,8 +59,12 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}  
       - MONGO_INITDB_DATABASE=${MONGO_DB_NAME}  
     networks:
-      - koronet-network
+      - mongo-network
 
 networks:
-  koronet-network:
+  mysql-network:
+    driver: bridge
+  redis-network:
+    driver: bridge
+  mongo-network:
     driver: bridge
