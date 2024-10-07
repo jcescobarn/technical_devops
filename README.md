@@ -7,7 +7,7 @@ The web server is built with Go using the Gin framework and is designed to conne
 1. **Docker Image**: A minimal base image is used, optimized for size and build time with Alpine images. There are two Dockerfiles in the project: one is used with Docker Compose, compiling the application before deploying it in an Alpine image, and the other is specifically for deployment to Docker Hub, which utilizes only the Alpine image.
 2. **Docker Compose**: The docker-compose.yml file runs the web server along with a relational database (MySQL), a non-relational database (MongoDB), and a Redis service. Each service is configured to operate on separate networks, isolating the nodes from one another. 
 
-## CI (Jenkins)
+## Jenkins
 The Jenkins pipeline begins by configuring the environment and compiling the application. After that, the Docker image is built, and security tests are conducted using Docker Scout to check for known vulnerabilities (CVE). If no vulnerabilities are found, the tagged image is deployed to Docker Hub. Following the deployment to Docker Hub, AWS credentials are configured, the context of the EKS cluster is set up, and the deployment is updated on the EKS cluster.
 
 ### Plugins
