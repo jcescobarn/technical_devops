@@ -123,16 +123,20 @@ pipeline {
             }
         }
         stage('Configure AWS EKS Context'){
-            withCredentials([usernamePassword(credentialsId:${AWS_CREDENTIALS_ID}, usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                echo 'Step 1: Configure AWS CLI'
-                sh ''' 
-                    aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID 
-                    aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-                    aws configure set region ${AWS_REGION}
-                '''
+            steps {
+                script{
+                    withCredentials([usernamePassword(credentialsId:${AWS_CREDENTIALS_ID}, usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        echo 'Step 1: Configure AWS CLI'
+                        sh ''' 
+                            aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID 
+                            aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                            aws configure set region ${AWS_REGION}
+                        '''
 
-                echo 'Step 2: Update kubeconfig for EKS cluster'
-                sh "aws eks update-config --name ${EKS_CLUSTER_NAME} --region ${AWS_REGION}"
+                        echo 'Step 2: Update kubeconfig for EKS cluster'
+                        sh "aws eks update-config --name ${EKS_CLUSTER_NAME} --region ${AWS_REGION}"
+                    }
+                }
             }
         }
 
