@@ -1,4 +1,4 @@
-# koronet technical test
+# web service with docker compose & terraform
 
 ## Web Server
 The web server is built with Go using the Gin framework and is designed to connect to a relational database (MySQL), a non-relational database (MongoDB), and Redis for caching.
